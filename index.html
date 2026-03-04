@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Talks Event Schedule</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-bar input {
+            padding: 10px;
+            width: 70%;
+            max-width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .talk-slot {
+            background-color: #e9f5ff;
+            border-left: 5px solid #007bff;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .talk-slot.hidden {
+            display: none;
+        }
+        .talk-slot h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .talk-slot p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .talk-slot .time {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .talk-slot .speakers {
+            font-style: italic;
+        }
+        .talk-slot .categories span {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.8em;
+        }
+        .lunch-break {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .lunch-break h3 {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Technical Talks Event Schedule</h1>
+        <div class="search-bar">
+            <input type="text" id="categorySearch" placeholder="Search by category (e.g., AI, Web Dev)">
+        </div>
+        <div id="schedule">
+            <!-- Schedule will be injected here by Node.js and filtered by JS -->
+        </div>
+    </div>
+
+    <script>
+        const talksData = [
+            {
+                "title": "Introduction to AI in Modern Applications",
+                "speakers": ["Alice Johnson"],
+                "categories": ["AI", "Machine Learning"],
+                "duration": "1 hour",
+                "description": "A foundational look at how artificial intelligence is being integrated into today's software, covering key concepts and practical examples."
+            },
+            {
+                "title": "Frontend Frameworks: React vs Vue",
+                "speakers": ["Bob Smith", "Carol White"],
+                "categories": ["Web Dev", "Frontend", "JavaScript"],
+                "duration": "1 hour",
+                "description": "A comparative analysis of the two most popular frontend JavaScript frameworks, discussing their strengths, weaknesses, and use cases."
+            },
+            {
+                "title": "Serverless Architectures with AWS Lambda",
+                "speakers": ["David Green"],
+                "categories": ["Cloud", "Serverless", "AWS"],
+                "duration": "1 hour",
+                "description": "Exploring the benefits and challenges of building applications using serverless functions, with a focus on AWS Lambda."
+            },
+            {
+                "title": "Optimizing Database Performance",
+                "speakers": ["Eve Black"],
+                "categories": ["Databases", "Backend"],
+                "duration": "1 hour",
+                "description": "Deep dive into techniques and best practices for optimizing database queries and overall performance in scalable applications."
+            },
+            {
+                "title": "Cybersecurity Essentials for Developers",
+                "speakers": ["Frank Blue"],
+                "categories": ["Security", "DevOps"],
+                "duration": "1 hour",
+                "description": "An overview of essential cybersecurity practices every developer should know, from secure coding to common vulnerabilities."
+            },
+            {
+                "title": "The Future of WebAssembly",
+                "speakers": ["Grace Red", "Harry Yellow"],
+                "categories": ["Web Dev", "Performance"],
+                "duration": "1 hour",
+                "description": "Discussing the growing potential of WebAssembly beyond the browser and its impact on performance-critical applications."
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const scheduleContainer = document.getElementById('schedule');
+            const categorySearch = document.getElementById('categorySearch');
+
+            const schedule = [
+                { type: 'talk', index: 0, start: '10:00 AM', end: '11:00 AM' },
+                { type: 'transition', start: '11:00 AM', end: '11:10 AM' },
+                { type: 'talk', index: 1, start: '11:10 AM', end: '12:10 PM' },
+                { type: 'transition', start: '12:10 PM', end: '12:20 PM' },
+                { type: 'talk', index: 2, start: '12:20 PM', end: '1:20 PM' },
+                { type: 'lunch', start: '1:20 PM', end: '2:00 PM' },
+                { type: 'talk', index: 3, start: '2:00 PM', end: '3:00 PM' },
+                { type: 'transition', start: '3:00 PM', end: '3:10 PM' },
+                { type: 'talk', index: 4, start: '3:10 PM', end: '4:10 PM' },
+                { type: 'transition', start: '4:10 PM', end: '4:20 PM' },
+                { type: 'talk', index: 5, start: '4:20 PM', end: '5:20 PM' }
+            ];
+
+            function renderSchedule(filterCategory = '') {
+                scheduleContainer.innerHTML = ''; // Clear existing schedule
+                schedule.forEach(slot => {
+                    if (slot.type === 'talk') {
+                        const talk = talksData[slot.index];
+                        const categoriesLower = talk.categories.map(cat => cat.toLowerCase());
+                        const isHidden = filterCategory && !categoriesLower.includes(filterCategory.toLowerCase());
+
+                        const talkElement = document.createElement('div');
+                        talkElement.classList.add('talk-slot');
+                        if (isHidden) {
+                            talkElement.classList.add('hidden');
+                        }
+
+                        talkElement.innerHTML = `
+                            <p class="time">${slot.start} - ${slot.end}</p>
+                            <h3>${talk.title}</h3>
+                            <p class="speakers">Speakers: ${talk.speakers.join(' & ')}</p>
+                            <p class="categories">Categories: ${talk.categories.map(cat => `<span>${cat}</span>`).join('')}</p>
+                            <p>${talk.description}</p>
+                        `;
+                        scheduleContainer.appendChild(talkElement);
+                    } else if (slot.type === 'lunch') {
+                        const lunchElement = document.createElement('div');
+                        lunchElement.classList.add('lunch-break');
+                        lunchElement.innerHTML = `
+                            <p class="time">${slot.start} - ${slot.end}</p>
+                            <h3>Lunch Break</h3>
+                        `;
+                        scheduleContainer.appendChild(lunchElement);
+                    }
+                    // Transitions are not explicitly rendered as separate blocks,
+                    // they are implied by the time gaps between talks.
+                });
+            }
+
+            // Initial render
+            renderSchedule();
+
+            // Search functionality
+            categorySearch.addEventListener('keyup', (event) => {
+                renderSchedule(event.target.value.trim());
+            });
+        });
+    </script>
+</body>
+</html>
